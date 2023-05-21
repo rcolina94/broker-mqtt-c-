@@ -1,39 +1,35 @@
 #include <iostream>
-#include <string>
 #include <zmq.hpp>
-#include <thread>
 
 int main() {
+    // Crear un contexto ZeroMQ y dos sockets, uno para el cliente y otro para el controlador
     zmq::context_t context(1);
-    zmq::socket_t broker(context, ZMQ_ROUTER);
-    broker.bind("tcp://*:5555");  // Bind to a specific port
+    zmq::socket_t clientSocket(context, ZMQ_PUSH);
+    zmq::socket_t controllerSocket(context, ZMQ_PULL);
+    clientSocket.bind("tcp://*:5555");
+    controllerSocket.bind("tcp://*:5556");
 
-    std::cout << "Broker started. Listening on port 5555..." << std::endl;
+    std::cout << "Broker MQTT (ZeroMQ) iniciado." << std::endl;
 
     while (true) {
-        zmq::message_t identity;
-        zmq::message_t message;
+        // Verificar si se recibió un mensaje del cliente
+        zmq::pollitem_t items[] = {
+            { static_cast<void*>(controllerSocket), 0, ZMQ_POLLIN, 0 }
+        };
+        zmq::poll(items, 1, -1);
 
-        broker.recv(&identity);
-        broker.recv(&message);
+        if (items[0].revents & ZMQ_POLLIN) {
+            zmq::message_t message;
+            controllerSocket.recv(message, zmq::recv_flags::none);
 
-        // Process the message
-        std::string client = std::string(static_cast<char*>(identity.data()), identity.size());
-        std::string content = std::string(static_cast<char*>(message.data()), message.size());
+            // Enviar el mensaje recibido desde el controlador al cliente
+            clientSocket.send(message, zmq::send_flags::none);
 
-        std::cout << "Received message from client: " << client << std::endl;
-        std::cout << "Message content: " << content << std::endl;
-
-        // Forward the message to the destination client (based on topic)
-
-        // Simulate some processing time
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-        // Send the response back to the client
-        broker.send(identity, zmq::send_flags::sndmore);
-        broker.send(message, zmq::send_flags::none);
+            std::cout << "Mensaje enviado al cliente: " << std::string(static_cast<char*>(message.data()), message.size()) << std::endl;
+        }
     }
 
     return 0;
 }
+
 
