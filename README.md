@@ -14,4 +14,8 @@ y se ejecutan
 ./publisher
 ./suscriber
 
-Se puedes ejecutar n cantidad de bombillos, y todos ellos se apagaran o encenderan segun la instruccion del control
+Se puedes ejecutar n cantidad de bombillos, se pueden tratar topics por separado.
+Se cargaron los archivos publisher y subscriber con el topic luz
+Se cargaron los archivos publisher2 y subscriber2 con el topic falso
+
+El broker exitosamente puede tratarlos por separado
