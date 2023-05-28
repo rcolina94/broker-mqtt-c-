@@ -10,6 +10,8 @@ void subscriber_thread() {
     zmq::context_t context(1);
     zmq::socket_t subscriber(context, ZMQ_SUB);
     subscriber.connect("tcp://localhost:5556");
+    subscriber.setsockopt(ZMQ_SUBSCRIBE, "falso", 3); // Suscribirse al topic "falso"
+
 
     zmq::socket_t publisher(context, ZMQ_PUB);
     publisher.connect("tcp://localhost:5555");
@@ -19,9 +21,7 @@ void subscriber_thread() {
     zmq::message_t estado_inicial_msg(estado_inicial.begin(), estado_inicial.end());
     publisher.send(estado_inicial_msg);
 
-    // Manejar topics
-    std::string topic_filter = "bombillofalso"; // Reemplazar con el filtro de topics deseado
-    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic_filter.c_str(), topic_filter.size());
+    
 
     zmq::message_t update;
     while (true) {

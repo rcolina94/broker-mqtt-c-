@@ -18,8 +18,8 @@ int main() {
     frontend.bind("tcp://*:5555");
     backend.bind("tcp://*:5556");
 
-    std::string topic_filter = "luz"; // Replace with the desired topic filter
-    frontend.setsockopt(ZMQ_SUBSCRIBE, topic_filter.c_str(), topic_filter.size());
+    // Subscribe to all topics
+    frontend.setsockopt(ZMQ_SUBSCRIBE, "", 0);
 
     zmq::message_t message;
     while (true) {
@@ -31,7 +31,7 @@ int main() {
         std::getline(iss, topic, ' ');
         std::getline(iss, content);
 
-        std::cout << "Received message on topic: " << topic << " with content: " << content << std::endl;
+        std::cout << "Recibido mensaje del topic: " << topic << " con el contenido: " << content << std::endl;
 
         zmq::message_t backend_message(received_message.data(), received_message.size());
         backend.send(backend_message);
@@ -39,5 +39,6 @@ int main() {
 
     return 0;
 }
+
 
 

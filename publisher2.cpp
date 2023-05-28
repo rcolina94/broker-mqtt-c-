@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
-std::string topic_filter = "luz"; // Reemplazar con el filtro de topics deseado
+std::string topic_filter = "falso"; // Reemplazar con el filtro de topics deseado
 
 void publisher_thread() {
     zmq::context_t context(1);
